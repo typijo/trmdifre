@@ -467,6 +467,11 @@ def define_transformer_flags():
       help=flags_core.help_wrap(
           "The Number of training steps to run between evaluations. This is "
           "used if --train_steps is defined."))
+  
+  # Max vocab size control
+  flags.DEFINE_integer(
+      name="vocab_size", short_name="vs", default=None,
+      help=flags_core.help_wrap("Vocabulary size"))
 
   # BLEU score computation
   flags.DEFINE_string(
