@@ -607,6 +607,8 @@ def run_transformer(flags_obj):
     elif flags_obj.param_set == "base":
       params = model_params.BASE_MULTI_GPU_PARAMS
 
+  params["vocab_size"] = flags_obj.vocab_size if flags_obj.vocab_size is not None else params["vocab_size"]
+
   params["data_dir"] = flags_obj.data_dir
   params["model_dir"] = flags_obj.model_dir
   params["num_parallel_calls"] = flags_obj.num_parallel_calls
