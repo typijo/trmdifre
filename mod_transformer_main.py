@@ -605,7 +605,7 @@ def run_transformer(flags_obj):
     params["batch_size"] = distribution_utils.per_replica_batch_size(
         params["batch_size"], num_gpus)
 
-  if num_examples = {
+  num_examples = {
     tf.estimator.ModeKeys.TRAIN: flags_obj.num_examples_train,
     tf.estimator.ModeKeys.EVAL: flags_obj.num_examples_eval
   }
