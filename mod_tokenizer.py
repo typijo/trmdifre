@@ -385,6 +385,7 @@ def _split_token_to_subtokens(token, subtoken_dict, max_subtoken_length, unk="<u
       # raise ValueError("Was unable to split token \"%s\" into subtokens." %
       #                token)
       ret.append(unk) # *modified* to cope with undefined word
+      start = end
   return ret
 
 
