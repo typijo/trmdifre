@@ -164,7 +164,7 @@ def main(unused_argv):
     return
 
   subtokenizer = spm.SentencePieceProcessor()
-  subtokenizer.load(FLAGS.vocab_file)
+  subtokenizer.load(FLAGS.sp_model)
 
   # Set up estimator and params
   params = transformer_main.PARAMS_MAP[FLAGS.param_set]
