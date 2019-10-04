@@ -19,6 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import numpy as np
 
 # pylint: disable=g-bad-import-order
 from absl import app as absl_app
@@ -71,6 +72,10 @@ def _encode_and_add_eos(line, subtokenizer):
 
 def _trim_and_decode(ids, subtokenizer):
   """Trim EOS and PAD tokens from ids, and decode to return a string."""
+  if isinstance(ids, np.ndarray):
+      # Cast np.array to list
+      ids = ids.tolist()
+
   try:
     index = list(ids).index(EOS_ID)
     return subtokenizer.DecodeIds(ids[:index])
