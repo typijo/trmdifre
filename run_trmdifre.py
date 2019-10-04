@@ -48,7 +48,8 @@ import trmdifre as transformer # *patched*
 import dataset_difre as dataset # *patched*
 
 from official.transformer.utils import metrics
-from official.transformer.utils import schedule
+#from official.transformer.utils import schedule
+import mod_schedule as schedule
 from official.transformer.utils import tokenizer
 from official.utils.accelerator import tpu as tpu_util
 from official.utils.export import export
@@ -473,6 +474,16 @@ def define_transformer_flags():
       name="vocab_size", short_name="vs", default=None,
       help=flags_core.help_wrap("Vocabulary size"))
 
+  # *added* Flags for number of examples
+  flags.DEFINE_integer(
+    name="num_examples_train", default=8000,
+    help=flags_core.help_wrap("Number of training examples used.")
+  )
+  flags.DEFINE_integer(
+    name="num_examples_eval", default=100,
+    help=flags_core.help_wrap("Number of evaluation examples used.")
+  )
+
   # BLEU score computation
   flags.DEFINE_string(
       name="bleu_source", short_name="bls", default=None,
@@ -631,6 +642,11 @@ def run_transformer(flags_obj):
     params["batch_size"] = distribution_utils.per_replica_batch_size(
         params["batch_size"], num_gpus)
 
+  num_examples = {
+    tf.estimator.ModeKeys.TRAIN: flags_obj.num_examples_train,
+    tf.estimator.ModeKeys.EVAL: flags_obj.num_examples_eval
+  }
+
   schedule_manager = schedule.Manager(
       train_steps=flags_obj.train_steps,
       steps_between_evals=flags_obj.steps_between_evals,
@@ -640,7 +656,8 @@ def run_transformer(flags_obj):
       batch_size=params["batch_size"],
       max_length=params["max_length"],
       use_tpu=params["use_tpu"],
-      num_tpu_shards=flags_obj.num_tpu_shards
+      num_tpu_shards=flags_obj.num_tpu_shards,
+      num_examples=num_examples
   )
 
   params["repeat_dataset"] = schedule_manager.repeat_dataset
