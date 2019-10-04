@@ -26,7 +26,8 @@ from absl import flags
 import tensorflow as tf
 # pylint: enable=g-bad-import-order
 
-from official.transformer.utils import tokenizer
+#from official.transformer.utils import tokenizer
+import mod_tokenizer as tokenizer
 from official.utils.flags import core as flags_core
 
 _DECODE_BATCH_SIZE = 32
