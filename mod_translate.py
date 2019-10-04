@@ -27,7 +27,8 @@ import tensorflow as tf
 # pylint: enable=g-bad-import-order
 
 #from official.transformer.utils import tokenizer
-import mod_tokenizer as tokenizer
+from official.transformer.utils.tokenizer import EOS_ID
+import sentencepiece as spm
 from official.utils.flags import core as flags_core
 
 _DECODE_BATCH_SIZE = 32
@@ -65,16 +66,16 @@ def _get_sorted_inputs(filename):
 
 def _encode_and_add_eos(line, subtokenizer):
   """Encode line with subtokenizer, and add EOS id to the end."""
-  return subtokenizer.encode(line) + [tokenizer.EOS_ID]
+  return subtokenizer.EncodeAsIds(line) + [EOS_ID]
 
 
 def _trim_and_decode(ids, subtokenizer):
   """Trim EOS and PAD tokens from ids, and decode to return a string."""
   try:
-    index = list(ids).index(tokenizer.EOS_ID)
-    return subtokenizer.decode(ids[:index])
+    index = list(ids).index(EOS_ID)
+    return subtokenizer.DecodeIds(ids[:index])
   except ValueError:  # No EOS found in sequence
-    return subtokenizer.decode(ids)
+    return subtokenizer.DecodeIds(ids)
 
 
 def translate_file(
@@ -162,7 +163,8 @@ def main(unused_argv):
                     "flags --text or --file.")
     return
 
-  subtokenizer = tokenizer.Subtokenizer(FLAGS.vocab_file)
+  subtokenizer = spm.SentencePieceProcessor()
+  subtokenizer.load(FLAGS.vocab_file)
 
   # Set up estimator and params
   params = transformer_main.PARAMS_MAP[FLAGS.param_set]
@@ -218,8 +220,14 @@ def define_translate_flags():
       help=flags_core.help_wrap(
           "Path to subtoken vocabulary file. If data_download.py was used to "
           "download and encode the training data, look in the data_dir to find "
-          "the vocab file."))
-  flags.mark_flag_as_required("vocab_file")
+          "the vocab file."
+          "*NOT USED*"))
+  # flags.mark_flag_as_required("vocab_file")
+  flags.DEFINE_string(
+      name="sp_model", short_name="sp", default=None,
+      help=flags_core.help_wrap(
+          "Sentencepiece model to use."))
+  flags.mark_flag_as_required("sp_model")
 
   flags.DEFINE_string(
       name="text", default=None,
