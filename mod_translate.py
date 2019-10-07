@@ -197,7 +197,10 @@ def main(unused_argv):
 
     output_file = None
     if FLAGS.file_out is not None:
-      output_file = os.path.abspath(FLAGS.file_out)
+      if FLAGS.file_out.startswith("gs://"):
+        output_file = FLAGS.file_out
+      else:
+        output_file = os.path.abspath(FLAGS.file_out)
       tf.logging.info("File output specified: %s" % output_file)
 
     translate_file(estimator, subtokenizer, input_file, output_file)
