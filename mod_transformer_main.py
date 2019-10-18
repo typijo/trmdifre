@@ -451,6 +451,12 @@ def define_transformer_flags():
     help=flags_core.help_wrap("Number of evaluation examples used.")
   )
 
+  # *added* logging interval
+  flags.DEFINE_integer(
+    name="save_summary_steps", default=500,
+    help=flags_core.help_wrap("Number of summary save steps")
+  )
+
   # BLEU score computation
   flags.DEFINE_string(
       name="bleu_source", short_name="bls", default=None,
@@ -530,7 +536,8 @@ def construct_estimator(flags_obj, params, schedule_manager):
         all_reduce_alg=flags_obj.all_reduce_alg)
     return tf.estimator.Estimator(
         model_fn=model_fn, model_dir=flags_obj.model_dir, params=params,
-        config=tf.estimator.RunConfig(train_distribute=distribution_strategy))
+        config=tf.estimator.RunConfig(train_distribute=distribution_strategy,
+        save_summary_steps=flags_obj.save_summary_steps))
 
   tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
       tpu=flags_obj.tpu,
@@ -547,7 +554,8 @@ def construct_estimator(flags_obj, params, schedule_manager):
       model_dir=flags_obj.model_dir,
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
-      tpu_config=tpu_config)
+      tpu_config=tpu_config,
+      save_summary_steps=flags_obj.save_summary_steps)
 
   return tf.contrib.tpu.TPUEstimator(
       model_fn=model_fn,
