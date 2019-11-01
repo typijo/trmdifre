@@ -113,11 +113,20 @@ def _parse_example(serialized_example):
   inputs_oe = tf.sparse_tensor_to_dense(parsed["old_en"])
   inputs_nj = tf.sparse_tensor_to_dense(parsed["old_jp"])
   
-  inputs = tf.stack([inputs_oj, inputs_oe, inputs_nj], axis=0)
-  
   targets = tf.sparse_tensor_to_dense(parsed["new_en"])
   
-  return inputs, targets
+  return inputs_oj, inputs_oe, inputs_nj, targets
+
+def _stack_example(example):
+  """Return a stacked example from separated ones."""
+  oj = example[0]
+  oe = example[1]
+  nj = example[2]
+  ne = example[3]
+
+  inputs = tf.stack([oj, oe, nj], axis=0)
+
+  return inputs, ne
 
 def _filter_max_length(example, max_length=256):
   """Indicates whether the example's length is lower than the maximum length.
@@ -297,11 +306,16 @@ def _read_and_batch_from_files(
   if static_batch:
     # TODO change function to more effective one
     dataset = dataset.apply(tf.contrib.data.padded_batch_and_drop_remainder(
-        batch_size // max_length, ([3, max_length], [max_length])))
+        batch_size // max_length, (
+          [max_length], [max_length], [max_length], [max_length])))
   else:
     raise NotImplementedError("Dynamic_batch not implemented for difre") 
     # Group and batch such that each batch has examples of similar length.
     ## dataset = _batch_examples(dataset, batch_size, max_length)
+  
+  # stack oe, oj, ej
+  dataset = dataset.apply(tf.contrib.data.parallel_interleave(
+    _stack_example, sloppy=shuffle, cycle_length=num_parallel_calls))
 
   dataset = dataset.repeat(repeat)
 
