@@ -119,7 +119,7 @@ def _parse_example(serialized_example):
 
 def _stack_example(oj, oe, nj, ne):
   """Return a stacked example from separated ones."""
-  inputs = tf.stack([oj, oe, nj], axis=0)
+  inputs = tf.stack([oj, oe, nj], axis=1)
 
   tf.logging.info("(inputs, ne): %s %s" % (str(inputs), str(ne)))
 
