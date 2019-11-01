@@ -121,6 +121,8 @@ def _stack_example(oj, oe, nj, ne):
   """Return a stacked example from separated ones."""
   inputs = tf.stack([oj, oe, nj], axis=0)
 
+  tf.logging.info("(inputs, ne): %s %s" % (str(inputs), str(ne)))
+
   return inputs, ne
 
 def _filter_max_length(example, max_length=256):
@@ -309,8 +311,8 @@ def _read_and_batch_from_files(
     ## dataset = _batch_examples(dataset, batch_size, max_length)
   
   # stack oe, oj, ej
-  dataset = dataset.apply(tf.contrib.data.parallel_interleave(
-    _stack_example, sloppy=shuffle, cycle_length=num_parallel_calls))
+  dataset = dataset.map(_stack_example,
+                        num_parallel_calls=num_parallel_calls)
 
   dataset = dataset.repeat(repeat)
 
