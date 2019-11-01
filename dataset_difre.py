@@ -117,13 +117,8 @@ def _parse_example(serialized_example):
   
   return inputs_oj, inputs_oe, inputs_nj, targets
 
-def _stack_example(example):
+def _stack_example(oj, oe, nj, ne):
   """Return a stacked example from separated ones."""
-  oj = example[0]
-  oe = example[1]
-  nj = example[2]
-  ne = example[3]
-
   inputs = tf.stack([oj, oe, nj], axis=0)
 
   return inputs, ne
