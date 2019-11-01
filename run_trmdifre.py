@@ -631,6 +631,8 @@ def run_transformer(flags_obj):
 
   params["use_synthetic_data"] = flags_obj.use_synthetic_data
 
+  params["dtype"] = flags_obj.dtype # *modified* no transfer
+
   # Set batch size parameter, which depends on the availability of
   # TPU and GPU, and distribution settings.
   params["batch_size"] = (flags_obj.batch_size or (
